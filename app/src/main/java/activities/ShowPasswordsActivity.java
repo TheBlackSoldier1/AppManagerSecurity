@@ -86,7 +86,7 @@ public class ShowPasswordsActivity extends AppCompatActivity {
                     String idTarjeta = snapshot.child("idTarjeta").getValue(String.class);
                     String id = snapshot.child("id").getValue(String.class);
                     String apuntes = snapshot.child("apuntes").getValue(String.class);
-                    String pass = snapshot.child("pass").getValue(String.class);  // Si la contraseña está cifrada, la deberías desencriptar
+                    String pass = snapshot.child("pass").getValue(String.class);
                     String nombrePagina = snapshot.child("nombrePagina").getValue(String.class);
                     String nombreUsuario = snapshot.child("nombreUsuario").getValue(String.class);
 
@@ -98,7 +98,7 @@ public class ShowPasswordsActivity extends AppCompatActivity {
                 }
 
                 // Creamos el adaptador con la lista de contraseñas y lo asignamos al RecyclerView
-                passwordAdapter = new PasswordAdapter(passwordList);
+                passwordAdapter = new PasswordAdapter(passwordList, ShowPasswordsActivity.this);
                 recyclerView.setAdapter(passwordAdapter);
             }
 
@@ -110,3 +110,4 @@ public class ShowPasswordsActivity extends AppCompatActivity {
         });
     }
 }
+
