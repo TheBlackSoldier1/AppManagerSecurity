@@ -1,6 +1,9 @@
 package activities;
 
+import static android.webkit.ConsoleMessage.MessageLevel.LOG;
+
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -27,7 +30,7 @@ public class AddEditPasswordActivity extends AppCompatActivity {
     private EditText sitioEditText, usuarioEditText, contraseñaEditText, apuntesEditText;
     private Button savePasswordButton, backButton;
     private FirebaseDatabase database = FirebaseDatabase.getInstance(); // Instancia de Realtime Database
-    private DatabaseReference myRef = database.getReference("contraseñas"); // Referencia a la colección de contraseñas
+    private DatabaseReference myRef = database.getReference("pass"); // Referencia a la colección de contraseñas
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +50,7 @@ public class AddEditPasswordActivity extends AppCompatActivity {
     }
 
     private void savePassword() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String sitio = sitioEditText.getText().toString();
         String usuario = usuarioEditText.getText().toString();
         String contraseña = contraseñaEditText.getText().toString();
@@ -58,21 +62,23 @@ public class AddEditPasswordActivity extends AppCompatActivity {
             return;
         }
 
-        // Genera una clave de cifrado basada en el UID del usuario
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        String encryptedPassword = encryptPassword(contraseña, userId);  // Cifra la contraseña
+        // Cifra la contraseña
+        String encryptedPassword = encryptPassword(contraseña, userId);
 
-        // Crea el objeto UserPass
-        UserPass userpass = new UserPass(userId, UUID.randomUUID().toString(), apuntes, encryptedPassword, sitio, usuario);
-
-        // Guardar en Firebase Realtime Database
+        // Genera una clave única para este registro
         String key = myRef.push().getKey();  // Genera una clave única para este objeto
+
         if (key != null) {
+            // Crea el objeto UserPass con la misma clave para idTarjeta
+            UserPass userpass = new UserPass(key, userId, apuntes, encryptedPassword, sitio, usuario);
+
+            // Guardar en Firebase Realtime Database usando la clave generada
             myRef.child(key).setValue(userpass)
                     .addOnSuccessListener(aVoid -> Toast.makeText(this, "Contraseña guardada", Toast.LENGTH_SHORT).show())
                     .addOnFailureListener(e -> Toast.makeText(this, "Error al guardar contraseña", Toast.LENGTH_SHORT).show());
         }
     }
+
 
     // Método para cifrar la contraseña con AES
     private String encryptPassword(String password, String userId) {

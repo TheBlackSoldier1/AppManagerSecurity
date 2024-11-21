@@ -1,17 +1,14 @@
 package activities;
 
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -35,9 +32,6 @@ public class ShowPasswordsActivity extends AppCompatActivity {
     private Button backButton, addButton;
     private List<UserPass> passwordList = new ArrayList<>();
     private FirebaseAuth mAuth;
-
-    // Instancia de KeyguardManager
-    private KeyguardManager keyguardManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,46 +62,19 @@ public class ShowPasswordsActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Obtener la instancia de KeyguardManager
-        keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-
-        // Verificar si el dispositivo tiene un método de bloqueo configurado
-        if (keyguardManager.isKeyguardSecure()) {
-            // Solicitar la autenticación
-            authenticateUser();
-        } else {
-            Toast.makeText(this, "Configura un patrón, PIN o huella dactilar", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void authenticateUser() {
-        // Verificar si la autenticación es exitosa
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            keyguardManager.requestDismissKeyguard(this, new KeyguardManager.KeyguardDismissCallback() {
-                @Override
-                public void onDismissCancelled() {
-                    super.onDismissCancelled();
-                    Toast.makeText(ShowPasswordsActivity.this, "Autenticación cancelada", Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onDismissSucceeded() {
-                    super.onDismissSucceeded();
-                    // Si la autenticación fue exitosa, cargar las contraseñas
-                    loadPasswords();
-                }
-            });
-        }
+        // Cargar las contraseñas directamente
+        loadPasswords();
     }
 
     private void loadPasswords() {
         String userId = mAuth.getCurrentUser().getUid();
+        Log.d("ShowPasswordsActivity", "User ID: " + userId);
 
         // Obtener una referencia a la base de datos de Firebase Realtime Database
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference("passwords").child(userId);
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference("pass");
 
-        // Leemos los datos del nodo "passwords" para el usuario autenticado
-        database.addValueEventListener(new ValueEventListener() {
+        // Leemos los datos del nodo "pass" para el usuario autenticado
+        database.orderByChild("id").equalTo(userId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 // Limpiamos la lista de contraseñas antes de cargar los nuevos datos
@@ -119,7 +86,7 @@ public class ShowPasswordsActivity extends AppCompatActivity {
                     String idTarjeta = snapshot.child("idTarjeta").getValue(String.class);
                     String id = snapshot.child("id").getValue(String.class);
                     String apuntes = snapshot.child("apuntes").getValue(String.class);
-                    String pass = snapshot.child("pass").getValue(String.class);  // Desencriptar si es necesario
+                    String pass = snapshot.child("pass").getValue(String.class);  // Si la contraseña está cifrada, la deberías desencriptar
                     String nombrePagina = snapshot.child("nombrePagina").getValue(String.class);
                     String nombreUsuario = snapshot.child("nombreUsuario").getValue(String.class);
 
