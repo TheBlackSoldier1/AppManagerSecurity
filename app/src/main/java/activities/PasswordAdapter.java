@@ -69,22 +69,29 @@ public class PasswordAdapter extends RecyclerView.Adapter<PasswordAdapter.Passwo
         }
     }
 
-    // Método para eliminar la contraseña de Firebase y de la lista local
     private void deletePassword(String idTarjeta, int position) {
-        // Obtenemos la referencia a la base de datos de Firebase
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference("pass");
+        // Verificamos que la lista no esté vacía y que la posición sea válida
+        if (passwordList != null && !passwordList.isEmpty() && position >= 0 && position < passwordList.size()) {
+            // Obtenemos la referencia a la base de datos de Firebase
+            DatabaseReference database = FirebaseDatabase.getInstance().getReference("pass");
 
-        // Eliminamos el nodo correspondiente a la tarjeta usando su idTarjeta
-        database.child(idTarjeta).removeValue()
-                .addOnSuccessListener(aVoid -> {
-                    // Si se elimina con éxito en Firebase, eliminamos también de la lista local
-                    passwordList.remove(position);
-                    notifyItemRemoved(position);
-                    Toast.makeText(context, "Contraseña eliminada correctamente", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    // Si falla la eliminación, mostramos un error
-                    Toast.makeText(context, "Error al eliminar la contraseña", Toast.LENGTH_SHORT).show();
-                });
+            // Eliminamos el nodo correspondiente a la tarjeta usando su idTarjeta
+            database.child(idTarjeta).removeValue()
+                    .addOnSuccessListener(aVoid -> {
+                        // Si la eliminación fue exitosa en Firebase, eliminamos también de la lista local
+                        if (position < passwordList.size()) {
+                            passwordList.remove(position); // Eliminamos de la lista local
+                            notifyItemRemoved(position);    // Notificamos al adaptador que se eliminó un item
+                            Toast.makeText(context, "Contraseña eliminada correctamente", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        // Si hay un error al eliminar, mostramos un mensaje
+                        Toast.makeText(context, "Error al eliminar la contraseña", Toast.LENGTH_SHORT).show();
+                    });
+        } else {
+            // Si la lista está vacía o la posición es inválida, mostramos un mensaje
+            Toast.makeText(context, "No hay contraseñas para eliminar o la posición es incorrecta", Toast.LENGTH_SHORT).show();
+        }
     }
 }

@@ -73,16 +73,13 @@ public class ShowPasswordsActivity extends AppCompatActivity {
         // Obtener una referencia a la base de datos de Firebase Realtime Database
         DatabaseReference database = FirebaseDatabase.getInstance().getReference("pass");
 
-        // Leemos los datos del nodo "pass" para el usuario autenticado
+        // Configurar un ValueEventListener para actualizar automáticamente la lista
         database.orderByChild("id").equalTo(userId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                // Limpiamos la lista de contraseñas antes de cargar los nuevos datos
                 passwordList.clear();
 
-                // Iteramos sobre los datos recuperados
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    // Extraemos los datos del snapshot
                     String idTarjeta = snapshot.child("idTarjeta").getValue(String.class);
                     String id = snapshot.child("id").getValue(String.class);
                     String apuntes = snapshot.child("apuntes").getValue(String.class);
@@ -90,24 +87,28 @@ public class ShowPasswordsActivity extends AppCompatActivity {
                     String nombrePagina = snapshot.child("nombrePagina").getValue(String.class);
                     String nombreUsuario = snapshot.child("nombreUsuario").getValue(String.class);
 
-                    // Creamos un objeto UserPass con los datos obtenidos
                     UserPass passwordObj = new UserPass(idTarjeta, id, apuntes, pass, nombrePagina, nombreUsuario);
-
-                    // Agregamos el objeto a la lista
                     passwordList.add(passwordObj);
                 }
 
-                // Creamos el adaptador con la lista de contraseñas y lo asignamos al RecyclerView
-                passwordAdapter = new PasswordAdapter(passwordList, ShowPasswordsActivity.this);
-                recyclerView.setAdapter(passwordAdapter);
+                // Actualizar el adaptador
+                if (passwordAdapter == null) {
+                    passwordAdapter = new PasswordAdapter(passwordList, ShowPasswordsActivity.this);
+                    recyclerView.setAdapter(passwordAdapter);
+                } else {
+                    passwordAdapter.notifyDataSetChanged();
+                }
+
+                // Mostrar un mensaje si la lista está vacía
+                if (passwordList.isEmpty()) {
+                    Toast.makeText(ShowPasswordsActivity.this, "No se encontraron contraseñas", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Si hay un error al leer los datos, mostramos un mensaje
                 Toast.makeText(ShowPasswordsActivity.this, "Error al cargar las contraseñas", Toast.LENGTH_SHORT).show();
             }
         });
     }
 }
-
