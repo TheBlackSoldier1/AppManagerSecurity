@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "701169436321",
+    "project_id": "blacksoldier-pass",
+    "storage_bucket": "blacksoldier-pass.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:701169436321:android:9c81605d319b88869c92e0",
+        "android_client_info": {
+          "package_name": "com.example.appmanagerpassword"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAChEroGceK1NaXPYp2BLNhKM33OqxxV0M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
