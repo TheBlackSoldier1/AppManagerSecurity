@@ -1,4 +1,5 @@
 Guía para usar el Gestor de Contraseñas en Android
+PostData:No logre implentar el keyguard pero se intento aca igual dejo documentado como podria haber sido si funcionada.
 Introducción
 ¡Hola! Esta aplicación que he desarrollado es un gestor de contraseñas para tu teléfono Android. Su propósito es ayudarte a guardar tus contraseñas de manera segura y organizada. La aplicación tiene varias funciones, como iniciar sesión con tu correo electrónico y contraseña, agregar nuevas cuentas, y proteger las cuentas para evitar que otras personas las editen sin tu permiso.
 Voy a explicarte paso a paso cómo usar la aplicación.
